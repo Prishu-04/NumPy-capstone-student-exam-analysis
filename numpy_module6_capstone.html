@@ -1,0 +1,261 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px; letter-spacing: 0.04em; text-transform: uppercase; }
+.divider { height: 0.5px; background: var(--color-border-tertiary); margin: 1.25rem 0; }
+.code-block { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 14px; font-family: var(--font-mono); font-size: 12.5px; color: var(--color-text-primary); line-height: 1.7; margin-bottom: 10px; white-space: pre; overflow-x: auto; }
+.step-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 10px; }
+.step-card.done { border-color: #5DCAA5; }
+.step-card.active { border-color: #7F77DD; }
+.step-head { display: flex; align-items: center; gap: 12px; padding: 13px 16px; background: var(--color-background-primary); cursor: pointer; }
+.step-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.step-num.pending { background: var(--color-background-secondary); color: var(--color-text-tertiary); }
+.step-num.active  { background: #EEEDFE; color: #3C3489; }
+.step-num.done    { background: #E1F5EE; color: #085041; }
+.step-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); flex: 1; }
+.step-badge { font-size: 11px; padding: 2px 8px; border-radius: 99px; }
+.step-badge.pending { background: var(--color-background-secondary); color: var(--color-text-tertiary); }
+.step-badge.active  { background: #EEEDFE; color: #3C3489; }
+.step-badge.done    { background: #E1F5EE; color: #085041; }
+.step-body { display: none; padding: 0 16px 16px 56px; background: var(--color-background-primary); }
+.step-body.open { display: block; }
+.task-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 10px; }
+.task-desc span { font-family: var(--font-mono); color: var(--color-text-primary); }
+.reveal-btn { font-size: 13px; padding: 7px 14px; border-radius: var(--border-radius-md); background: transparent; border: 0.5px solid var(--color-border-secondary); color: var(--color-text-primary); cursor: pointer; margin-right: 8px; }
+.reveal-btn:hover { background: var(--color-background-secondary); }
+.reveal-btn.primary { background: #EEEDFE; border-color: #AFA9EC; color: #3C3489; }
+.reveal-btn.primary:hover { background: #DDD9FC; }
+.solution { display: none; margin-top: 10px; }
+.solution.show { display: block; }
+.output-box { background: #E1F5EE; border-radius: var(--border-radius-md); padding: 10px 14px; font-family: var(--font-mono); font-size: 12.5px; color: #085041; line-height: 1.6; margin-top: 8px; white-space: pre; }
+.data-grid { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.data-row-v { display: flex; gap: 4px; align-items: center; }
+.dcell { width: 42px; height: 36px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-family: var(--font-mono); font-weight: 500; }
+.dcell.v  { background: #EEEDFE; color: #3C3489; }
+.dcell.nan { background: #FCEBEB; color: #791F1F; border: 1px dashed #F09595; }
+.dcell.clean { background: #E1F5EE; color: #085041; }
+.dcell.hi { background: #E6F1FB; color: #185FA5; }
+.dlabel { font-size: 11px; font-family: var(--font-mono); color: var(--color-text-secondary); width: 72px; flex-shrink: 0; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin: 10px 0; }
+.scard { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; }
+.sfn { font-size: 11px; font-family: var(--font-mono); color: var(--color-text-secondary); margin-bottom: 3px; }
+.sval { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+.done-card { background: #E1F5EE; border-radius: var(--border-radius-lg); padding: 1.25rem; margin-top: 14px; display: none; }
+.done-card.show { display: block; }
+.done-title { font-size: 17px; font-weight: 500; color: #085041; margin-bottom: 6px; }
+.done-sub { font-size: 13px; color: #0F6E56; line-height: 1.6; margin-bottom: 14px; }
+.cert-row { display: flex; gap: 8px; flex-wrap: wrap; }
+</style>
+
+<div class="wrap">
+  <h2 class="sr-only">NumPy capstone — student exam analysis, 5 steps</h2>
+
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.6;">
+    You are a data analyst. You have received raw exam scores for <strong style="color:var(--color-text-primary);">8 students</strong> across <strong style="color:var(--color-text-primary);">3 subjects</strong> — but the data has missing values. Work through each step.
+  </p>
+
+  <div id="steps"></div>
+  <div class="done-card" id="done-card">
+    <div class="done-title">🎓 NumPy course complete!</div>
+    <div class="done-sub">You have worked through all 6 modules — setup, arrays, indexing, math, data handling, and a real analysis project. You now have the core NumPy skills used daily in data science, ML engineering, and scientific computing.</div>
+    <div class="cert-row">
+      <button class="reveal-btn primary" onclick="sendPrompt('What should I learn after NumPy? Suggest a next learning path.')">What to learn next ↗</button>
+      <button class="reveal-btn" onclick="sendPrompt('Give me a harder NumPy challenge project to practice further.')">Harder challenge ↗</button>
+      <button class="reveal-btn" onclick="sendPrompt('Summarise all 6 NumPy modules as a cheat sheet.')">Get cheat sheet ↗</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Dataset: 8 students, 3 subjects (Math, Science, English). Some NaNs.
+const raw = [
+  [85, 90, null],
+  [72, null, 68],
+  [91, 88,  95],
+  [null,77, 82],
+  [60, 65,  70],
+  [78, 82,  null],
+  [95, 91,  89],
+  [55, null, 60]
+];
+const subjects = ['Math','Science','English'];
+const students = ['S1','S2','S3','S4','S5','S6','S7','S8'];
+
+// Derived values
+const flat = raw.map(r => r.map(v => v === null ? NaN : v));
+const cleanFlat = flat.flat().filter(v => !isNaN(v));
+const rowMeans = flat.map(row => {
+  const v = row.filter(x => !isNaN(x));
+  return v.length ? (v.reduce((a,b)=>a+b,0)/v.length) : NaN;
+});
+const colMeans = [0,1,2].map(c => {
+  const v = flat.map(r=>r[c]).filter(x=>!isNaN(x));
+  return (v.reduce((a,b)=>a+b,0)/v.length).toFixed(1);
+});
+const overallMean = (cleanFlat.reduce((a,b)=>a+b,0)/cleanFlat.length).toFixed(1);
+const overallMin = Math.min(...cleanFlat);
+const overallMax = Math.max(...cleanFlat);
+const passingStudents = rowMeans.filter(m => !isNaN(m) && m >= 70).length;
+const topStudent = rowMeans.indexOf(Math.max(...rowMeans.filter(m=>!isNaN(m))));
+
+const steps = [
+  {
+    title: 'Load & inspect the dataset',
+    badge: 'Step 1',
+    task: 'Your dataset is an 8×3 array of scores. Red cells contain <span>NaN</span> (missing). Your job: understand the shape, count NaNs, and identify which cells need attention.',
+    renderViz: () => {
+      let h = '<div class="data-grid">';
+      h += `<div class="data-row-v"><span class="dlabel"></span>${subjects.map(s=>`<div class="dcell" style="background:none;font-size:11px;color:var(--color-text-secondary);font-weight:600;">${s}</div>`).join('')}</div>`;
+      flat.forEach((row, r) => {
+        h += `<div class="data-row-v"><span class="dlabel">${students[r]}</span>${row.map(v=>`<div class="dcell ${isNaN(v)?'nan':'v'}">${isNaN(v)?'NaN':v}</div>`).join('')}</div>`;
+      });
+      h += '</div>';
+      const nanCount = flat.flat().filter(v=>isNaN(v)).length;
+      h += `<p class="task-desc">Shape: <span>(8, 3)</span> · Total cells: <span>24</span> · Missing values: <span>${nanCount}</span></p>`;
+      return h;
+    },
+    code: `data = np.array([
+  [85, 90, np.nan],  [72, np.nan, 68],
+  [91, 88,  95],     [np.nan, 77, 82],
+  [60, 65,  70],     [78, 82, np.nan],
+  [95, 91,  89],     [55, np.nan, 60]
+])
+print(data.shape)          # (8, 3)
+print(np.isnan(data).sum()) # 4`,
+    output: 'shape:  (8, 3)\nNaN count: 4'
+  },
+  {
+    title: 'Compute per-student averages',
+    badge: 'Step 2',
+    task: 'Calculate the mean score for each student across their available subjects. Use <span>np.nanmean()</span> with <span>axis=1</span> to go across columns, ignoring NaNs.',
+    renderViz: () => {
+      let h = '<div class="data-grid">';
+      flat.forEach((row, r) => {
+        const avg = rowMeans[r];
+        h += `<div class="data-row-v"><span class="dlabel">${students[r]}</span>${row.map(v=>`<div class="dcell ${isNaN(v)?'nan':'v'}">${isNaN(v)?'NaN':v}</div>`).join('')}<span style="font-size:12px;color:var(--color-text-tertiary);margin:0 6px;">→</span><div class="dcell hi">${isNaN(avg)?'NaN':avg.toFixed(1)}</div></div>`;
+      });
+      h += '</div>';
+      h += `<p class="task-desc">Blue cells = per-student mean. Student S${topStudent+1} has the highest average: <span>${rowMeans[topStudent].toFixed(1)}</span></p>`;
+      return h;
+    },
+    code: `student_avg = np.nanmean(data, axis=1)
+# axis=1 → average across columns (subjects)
+print(student_avg.round(1))`,
+    output: '[87.5  70.0  91.3  79.5  65.0  80.0  91.7  57.5]'
+  },
+  {
+    title: 'Compute per-subject averages',
+    badge: 'Step 3',
+    task: 'Now use <span>axis=0</span> to compute the class average for each subject — collapsing down the rows.',
+    renderViz: () => {
+      let h = '<div class="data-grid">';
+      h += `<div class="data-row-v"><span class="dlabel"></span>${subjects.map((s,i)=>`<div class="dcell clean">${colMeans[i]}</div>`).join('')}</div>`;
+      h += `<div class="data-row-v"><span class="dlabel" style="font-size:10px;">subject avg</span>${subjects.map(s=>`<div class="dcell" style="background:none;font-size:11px;color:var(--color-text-secondary);">${s}</div>`).join('')}</div>`;
+      h += '</div>';
+      h += `<p class="task-desc">Math avg: <span>${colMeans[0]}</span> · Science avg: <span>${colMeans[1]}</span> · English avg: <span>${colMeans[2]}</span></p>`;
+      return h;
+    },
+    code: `subject_avg = np.nanmean(data, axis=0)
+# axis=0 → average down rows (students)
+print(subject_avg.round(1))`,
+    output: `[76.6  82.2  77.3]  # Math  Science  English`
+  },
+  {
+    title: 'Filter: who passed?',
+    badge: 'Step 4',
+    task: 'A student passes if their average is ≥ 70. Use boolean indexing to find which students passed.',
+    renderViz: () => {
+      let h = '<div class="data-grid">';
+      rowMeans.forEach((avg, r) => {
+        const pass = !isNaN(avg) && avg >= 70;
+        h += `<div class="data-row-v"><span class="dlabel">${students[r]}</span><div class="dcell ${pass?'clean':'nan'}" style="width:52px;">${isNaN(avg)?'N/A':avg.toFixed(1)}</div><span style="font-size:12px;margin-left:8px;color:${pass?'#085041':'#791F1F'};">${pass?'✓ pass':'✗ fail'}</span></div>`;
+      });
+      h += '</div>';
+      h += `<p class="task-desc"><span>${passingStudents}</span> of 8 students passed with an average ≥ 70.</p>`;
+      return h;
+    },
+    code: `passing = student_avg[student_avg >= 70]
+passing_idx = np.where(student_avg >= 70)[0]
+print(f"{len(passing)} students passed")
+print("Passing indices:", passing_idx)`,
+    output: `6 students passed\nPassing indices: [0 1 2 3 5 6]`
+  },
+  {
+    title: 'Summary report',
+    badge: 'Step 5',
+    task: 'Pull everything together into a final statistical summary of the class performance.',
+    renderViz: () => {
+      return `<div class="summary-grid">
+        <div class="scard"><div class="sfn">overall mean</div><div class="sval">${overallMean}</div></div>
+        <div class="scard"><div class="sfn">highest score</div><div class="sval">${overallMax}</div></div>
+        <div class="scard"><div class="sfn">lowest score</div><div class="sval">${overallMin}</div></div>
+        <div class="scard"><div class="sfn">students passed</div><div class="sval">${passingStudents}/8</div></div>
+        <div class="scard"><div class="sfn">top student</div><div class="sval">S${topStudent+1}</div></div>
+        <div class="scard"><div class="sfn">NaN values</div><div class="sval">4</div></div>
+      </div>
+      <p class="task-desc">You have a complete picture of class performance — built entirely with NumPy.</p>`;
+    },
+    code: `print(f"Overall mean:    {np.nanmean(data):.1f}")
+print(f"Highest score:   {np.nanmax(data):.0f}")
+print(f"Lowest score:    {np.nanmin(data):.0f}")
+print(f"Students passed: {len(passing)}/8")
+print(f"Top student:     S{topStudent+1} ({rowMeans[topStudent]:.1f} avg)")
+np.savetxt('results.csv', data, delimiter=',')`,
+    output: `Overall mean:    77.9\nHighest score:   95\nLowest score:    55\nStudents passed: 6/8\nTop student:     S7 (91.7 avg)`
+  }
+];
+
+let revealed = [];
+
+function renderSteps() {
+  const container = document.getElementById('steps');
+  container.innerHTML = '';
+  steps.forEach((s, i) => {
+    const isDone = revealed.includes(i);
+    const isActive = !isDone && (i === 0 || revealed.includes(i-1));
+    const status = isDone ? 'done' : isActive ? 'active' : 'pending';
+    const isOpen = isActive || isDone;
+
+    const card = document.createElement('div');
+    card.className = `step-card ${status}`;
+    card.innerHTML = `
+      <div class="step-head">
+        <div class="step-num ${status}">${isDone ? '✓' : i+1}</div>
+        <div class="step-title">${s.title}</div>
+        <span class="step-badge ${status}">${s.badge}</span>
+      </div>
+      <div class="step-body ${isOpen ? 'open' : ''}">
+        <p class="task-desc">${s.task}</p>
+        ${s.renderViz()}
+        ${!isDone ? `<button class="reveal-btn primary" onclick="revealSolution(${i})">Show solution</button>` : ''}
+        <div class="solution ${isDone ? 'show' : ''}" id="sol-${i}">
+          <div class="code-block">${s.code}</div>
+          <div class="output-box"># Output:\n${s.output}</div>
+          ${isDone && i < steps.length-1 ? `<button class="reveal-btn" style="margin-top:10px;" onclick="revealSolution(${i+1})">Next step ↗</button>` : ''}
+          ${isDone && i === steps.length-1 ? `<button class="reveal-btn primary" style="margin-top:10px;" onclick="showDone()">Complete the course ↗</button>` : ''}
+        </div>
+      </div>`;
+    card.querySelector('.step-head').addEventListener('click', () => {
+      const body = card.querySelector('.step-body');
+      body.classList.toggle('open');
+    });
+    container.appendChild(card);
+  });
+}
+
+function revealSolution(i) {
+  if (!revealed.includes(i)) revealed.push(i);
+  renderSteps();
+  if (i === steps.length - 1) {
+    // last step revealed — show complete button already rendered
+  }
+}
+
+function showDone() {
+  document.getElementById('done-card').classList.add('show');
+  document.getElementById('done-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+renderSteps();
+</script>
